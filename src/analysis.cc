@@ -1,6 +1,7 @@
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/ReaderAscii.h"
 #include "HepMC3/Print.h"
+//#include "ROOT/TH1D.h"
 #include <iostream>
 
 using namespace HepMC3;
@@ -8,15 +9,20 @@ using namespace HepMC3;
 void analyze_event(const GenEvent &evt) {
     // Loop over particles in event, keep the outgoing lepton and all protons
     ConstGenParticlePtr lepton_out;
+    ConstGenParticlePtr neutrino_in = evt.particles()[evt.particles().size() - 1];
     std::vector<ConstGenParticlePtr> proton_out;
+    
     for(const auto &part : evt.particles()) {
-        if(part->status() != 1) continue;
-        if(std::abs(part->pid()) == 13) lepton_out = part;
-        else if(part->pid() == 2212) proton_out.push_back(part);
+      if(part->status() != 1) continue;
+      if(std::abs(part->pid()) == 13) lepton_out = part;
+      else if(part->pid() == 2212) proton_out.push_back(part);
     }
-
-    std::cout << "Found outgoing lepton with energy: " << lepton_out->momentum().e() << std::endl;
+    std::cout << "Incoming neutrino energy: " << neutrino_in->momentum().e() << std::endl;
+    std::cout << "Found outgoing muon with energy: " << lepton_out->momentum().e() << std::endl;
     std::cout << "Event had multiplicity of: " << proton_out.size() << std::endl;
+    
+    double omega = neutrino_in->momentum().e() - lepton_out->momentum().e();
+    
 }
 
 int main(int argc, char **argv) {
