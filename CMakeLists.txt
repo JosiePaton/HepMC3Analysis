@@ -46,7 +46,7 @@ include(CMake/StaticAnalyzers.cmake)
 include(CMake/ProgramOptions.cmake)
 
 find_package(HepMC3 REQUIRED)
-#find_package(ROOT 6 REQUIRED)
+find_package(ROOT 6 REQUIRED)
 
 # Add CMake modules to CMAKE_MODULE_PATH
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/CMake)
