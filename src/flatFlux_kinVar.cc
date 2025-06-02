@@ -16,12 +16,12 @@ int main(int argc, char **argv) {
     }
 
     //Get flux plot for weighting and convert it to MeV
-    TFile* fflux = TFile::Open("sbnd_flux.root");
+    /*TFile* fflux = TFile::Open("sbnd_flux.root");
     TH1D* numuFlux_Gev = (TH1D*)fflux->Get("flux_sbnd_numu");
     TH1D* numuFlux = new TH1D("numuFlux","numuFlux",80,0,4000);
     for(int i=0;i<numuFlux->GetNbinsX();i++){
       numuFlux->SetBinContent(i+1,numuFlux_Gev->GetBinContent(i+1));
-    }
+      }*/
     
     //Set up variables 
     int events_parsed = 0;
@@ -41,18 +41,13 @@ int main(int argc, char **argv) {
     TH1D* hCosOp[2];
     TH2D* hCosQ[2];
     TH2D* hCosE[2];
-    TH1D* hdpt[2];
-    TH1D* hdphit[2];
-    TH1D* hdalphat[2];
 
     string inter[2] = {"qe","intf"};
     for(int i=0;i<2;i++){
-      std::string histName_InE_f = "hInE_f_"+inter[i];
-      hInE_f[i] = new TH1D(histName_InE_f.c_str(),histName_InE_f.c_str(),80,0,4000);
       std::string histName_InE = "hInE_"+inter[i];
-      hInE[i] = new TH1D(histName_InE.c_str(),histName_InE.c_str(),80,0,4000);
+      hInE[i] = new TH1D(histName_InE.c_str(),histName_InE.c_str(),100,0,5000);
       std::string histName_OutE = "hOutE_"+inter[i];
-      hOutE[i] = new TH1D(histName_OutE.c_str(),histName_OutE.c_str(),80,0,4000);
+      hOutE[i] = new TH1D(histName_OutE.c_str(),histName_OutE.c_str(),100,0,5000);
       std::string histName_Q2 = "hQ2_"+inter[i];
       hQ2[i] = new TH1D(histName_Q2.c_str(),histName_Q2.c_str(),100,0,1000000);
       std::string histName_omega = "homega_"+inter[i];
@@ -64,13 +59,7 @@ int main(int argc, char **argv) {
       std::string histName_CosQ = "hCosQ_"+inter[i];
       hCosQ[i] = new TH2D(histName_CosQ.c_str(),histName_CosQ.c_str(),100,-1,1,100,0,1000000);
       std::string histName_CosE = "hCosE_"+inter[i];
-      hCosE[i] = new TH2D(histName_CosE.c_str(),histName_CosE.c_str(),100,-1,1,100,0,4000);
-      std::string histName_dpt = "hdpt_"+inter[i];
-      hdpt[i] = new TH1D(histName_dpt.c_str(),histName_dpt.c_str(),80,0,1000);
-      std::string histName_dphit = "hdphit_"+inter[i];
-      hdphit[i] = new TH1D(histName_dphit.c_str(),histName_dphit.c_str(),90,0,180);
-      std::string histName_dalphat = "hdalphat_"+inter[i];
-      hdalphat[i] = new TH1D(histName_dalphat.c_str(),histName_dalphat.c_str(),90,0,180);
+      hCosE[i] = new TH2D(histName_CosE.c_str(),histName_CosE.c_str(),100,-1,1,100,0,5000);
     }
     
     while(!input_file.failed()) {
@@ -122,12 +111,6 @@ int main(int argc, char **argv) {
 	TVector3 mumom(lepton_out->momentum().x(),lepton_out->momentum().y(),lepton_out->momentum().z());
 	TVector3 protmom(proton_out[0]->momentum().x(),proton_out[0]->momentum().y(),proton_out[0]->momentum().z());
 	double cosalpha = std::cos(mumom.Angle(protmom));
-	TVector3 mumomT(lepton_out->momentum().x(),lepton_out->momentum().y(),0);
-	TVector3 protmomT(proton_out[0]->momentum().x(),proton_out[0]->momentum().y(),0);
-	TVector3 dmomT = mumomT + protmomT;
-	double dpt = dmomT.Mag();
-	double dphit = protmomT.Angle(-mumomT)*(180/3.14159);
-	double dalphat = dmomT.Angle(-mumomT)*(180/3.14159);
 	
 	//Sort via interaction type
 	auto procID = evt.attribute<IntAttribute>("signal_process_id")->value();
@@ -135,11 +118,9 @@ int main(int argc, char **argv) {
 	if(procID>=200 && procID<=300) proc = 0; //qe
 	if(procID>=700 && procID<=800) proc = 1; //intf
 	
-	//Fill incoming energy hist (flat flux)
-	hInE_f[proc]->Fill(inE,evt.weights()[0]);
-
 	//Fill flux weighted incoming and outgoing energy hist
-	float weight =  numuFlux->GetBinContent(numuFlux->FindBin(inE))*evt.weights()[0] ;
+	//float weight =  numuFlux->GetBinContent(numuFlux->FindBin(inE))*evt.weights()[0] ;
+	float weight =  evt.weights()[0] ;
 	hInE[proc]->Fill(inE,weight);
 	hOutE[proc]->Fill(outE,weight);
 
@@ -150,9 +131,6 @@ int main(int argc, char **argv) {
 	hCosOp[proc]->Fill(cosalpha,weight);
 	hCosQ[proc]->Fill(costheta,Q2,weight);
 	hCosE[proc]->Fill(costheta,outE,weight);
-	hdpt[proc]->Fill(dpt,weight);
-	hdphit[proc]->Fill(dphit,weight);
-	hdalphat[proc]->Fill(dalphat,weight);
 	
 	//Debugging code snippet
 	/*
@@ -167,7 +145,6 @@ int main(int argc, char **argv) {
 
     std::cout << "Normalization factor (xsec/sum_weights) = " << xsec/sum_weights << std::endl;
     for(int j=0;j<2;j++){
-      hInE_f[j]->Scale(xsec/sum_weights);
       hInE[j]->Scale(xsec/sum_weights);
       hOutE[j]->Scale(xsec/sum_weights);
       hQ2[j]->Scale(xsec/sum_weights);
@@ -176,17 +153,12 @@ int main(int argc, char **argv) {
       hCosOp[j]->Scale(xsec/sum_weights);
       hCosQ[j]->Scale(xsec/sum_weights);
       hCosE[j]->Scale(xsec/sum_weights);
-      hdpt[j]->Scale(xsec/sum_weights);
-      hdphit[j]->Scale(xsec/sum_weights);
-      hdalphat[j]->Scale(xsec/sum_weights);
     }
     input_file.close();
 
-    //TFile* outfile = new TFile("Achilles_sbndFlux_kinVar_Intf_NewFile.root","RECREATE");
     TFile* outfile = new TFile(argv[2],"RECREATE");
-    numuFlux->Write();
+    //numuFlux->Write();
     for(int n=0;n<2;n++){
-      hInE_f[n]->Write();
       hInE[n]->Write();
       hOutE[n]->Write();
       hQ2[n]->Write();
@@ -195,12 +167,9 @@ int main(int argc, char **argv) {
       hCosOp[n]->Write();
       hCosQ[n]->Write();
       hCosE[n]->Write();
-      hdpt[n]->Write();
-      hdphit[n]->Write();
-      hdalphat[n]->Write();
     }
     delete outfile;
-    delete fflux;
+    //delete fflux;
     
     return 0;
 }
