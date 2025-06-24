@@ -16,12 +16,12 @@ int main(int argc, char **argv) {
     }
 
     //Get flux plot for weighting and convert it to MeV
-    TFile* fflux = TFile::Open("sbnd_flux.root");
+    /*TFile* fflux = TFile::Open("sbnd_flux.root");
     TH1D* numuFlux_Gev = (TH1D*)fflux->Get("flux_sbnd_numu");
     TH1D* numuFlux = new TH1D("numuFlux","numuFlux",80,0,4000);
     for(int i=0;i<numuFlux->GetNbinsX();i++){
       numuFlux->SetBinContent(i+1,numuFlux_Gev->GetBinContent(i+1));
-    }
+      }*/
     
     //Set up variables 
     int events_parsed = 0;
@@ -119,8 +119,8 @@ int main(int argc, char **argv) {
 	if(procID>=700 && procID<=800) proc = 1; //intf
 	
 	//Fill flux weighted incoming and outgoing energy hist
-	float weight =  numuFlux_Gev->GetBinContent(numuFlux_Gev->FindBin(inE/1000.))*evt.weights()[0] ;
-	//float weight =  evt.weights()[0] ;
+	//float weight =  numuFlux->GetBinContent(numuFlux->FindBin(inE))*evt.weights()[0] ;
+	float weight =  evt.weights()[0] ;
 	hInE[proc]->Fill(inE,weight);
 	hOutE[proc]->Fill(outE,weight);
 
