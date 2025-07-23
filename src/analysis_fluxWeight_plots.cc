@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
   }
   
   //Get flux plot for weighting
-  TFile* fflux = TFile::Open("sbnd_flux.root");
+  TFile* fflux = TFile::Open("fluxes/sbnd_flux.root");
   TH1D* numuFlux_Gev = (TH1D*)fflux->Get("flux_sbnd_numu");
   
   //Set up variables 

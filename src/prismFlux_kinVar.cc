@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
     }
 
     //Get flux files
-    TFile* fflux = TFile::Open("prism_fluxes_numu.root");
+    TFile* fflux = TFile::Open("fluxes/prism_fluxes_numu.root");
 
     string prism[3] = {"0","4","7"};
     TH1D* prismFluxes[3];

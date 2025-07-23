@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
     }
 
     //Get flux plot for weighting and convert it to MeV
-    TFile* fflux = TFile::Open("sbnd_flux.root");
+    TFile* fflux = TFile::Open("fluxes/sbnd_flux.root");
     TH1D* numuFlux_Gev = (TH1D*)fflux->Get("flux_sbnd_numu");
     TH1D* numuFlux = new TH1D("numuFlux","numuFlux",80,0,4000);
     for(int i=0;i<numuFlux->GetNbinsX();i++){
