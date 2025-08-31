@@ -1,0 +1,116 @@
+Main:
+  NEvents: 50
+  HardCuts: true
+  EventCuts: false
+  DoRotate: false
+  RunDecays: False
+  Output:
+      Format: NuHepMC
+      Name: achilles_Ar_Flat_QEIntf_CC.hepmc
+      Zipped: True
+
+SherpaOptions: !include "data/default/SherpaOptions.yml"
+
+Processes:
+  - Leptons: [14, [13]]
+
+Beams:
+  - Beam:
+      PID: 14
+      Beam Params:
+        #Type: FlatFlux
+        #MinEnergy: 0.
+        #MaxEnergy: 4000.
+        Type: Monochromatic
+        Energy: 1108
+
+Cascade:
+  Run: False
+  Interactions:
+    - Name: GeantInteraction
+      Options:
+        GeantData: data/GeantData.hdf5
+    - Name: PionInteraction
+      Options: 
+        HardScatter: 
+          Name: MesonBaryonInteraction
+          Options:
+        Absorption:
+          Name: PionAbsorptionOneStep
+          Options:
+    - Name: ConstantInteraction
+      Options:
+        InitialStates:
+          - Incoming: [3112, 2112]
+            Outgoing: 
+              - Outgoing: [3112, 2112]
+                CrossSection: 0
+          - Incoming: [3112, 2212]
+            Outgoing: 
+              - Outgoing: [3212, 2112]
+                CrossSection: 0
+          - Incoming: [321, 2212]
+            Outgoing: 
+              - Outgoing: [321, 2212]
+                CrossSection: 0
+          - Incoming: [321, 2112]
+            Outgoing: 
+              - Outgoing: [321, 2112]
+                CrossSection: 0
+          - Incoming: [3122, 2212]
+            Outgoing: 
+              - Outgoing: [3122, 2212]
+                CrossSection: 0
+          - Incoming: [3122, 2112]
+            Outgoing: 
+              - Outgoing: [3122, 2112]
+                CrossSection: 0
+          - Incoming: [3212, 2212]
+            Outgoing: 
+              - Outgoing: [3212, 2212]
+                CrossSection: 0
+          - Incoming: [3212, 2112]
+            Outgoing: 
+              - Outgoing: [3212, 2112]
+                CrossSection: 0
+          - Incoming: [3222, 2112]
+            Outgoing: 
+              - Outgoing: [3222, 2112]
+                CrossSection: 0
+          - Incoming: [3222, 2212]
+            Outgoing: 
+              - Outgoing: [3222, 2212]
+                CrossSection: 0
+          - Incoming: [311, 2112]
+            Outgoing: 
+              - Outgoing: [311, 2112]
+                CrossSection: 0
+          - Incoming: [311, 2212]
+            Outgoing: 
+              - Outgoing: [311, 2212]
+                CrossSection: 0
+  Step: 0.04
+  Probability: Gaussian
+  InMedium: None
+  PotentialProp: False
+  Algorithm: Base
+
+NuclearModels:
+  - NuclearModel: !include "data/default/QEOptions_Ar.yml"
+  - NuclearModel: !include "data/default/IntfOptionsF_Ar.yml"
+  #- NuclearModel: !include "data/default/RESOptionsF.yml"
+  #- NuclearModel: !include "data/default/HyperonOptions.yml"
+
+Nuclei:
+  - Nucleus: !include "data/default/40Ar.yml"
+
+HardCuts:
+  - Type: AngleTheta
+    PIDs: 11
+    range: [36.5, 38.5]
+
+Options: !include "data/default/OptionDefaults.yml"
+
+Backend:
+  Name: Default
+  Options: []

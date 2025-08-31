@@ -33,6 +33,7 @@ int main(int argc, char **argv) {
   //                   hOut_mu_pz - Outgoing muon z-momentum
   //                   hOut_p_cosTheta - Outgoing proton cos(theta)
   TH1D* hIn_nu_E[3];
+  TH1D* homega[3];
   TH1D* hOut_mu_pz[3];
   TH1D* hOut_p_cosTheta[3];
   
@@ -41,10 +42,13 @@ int main(int argc, char **argv) {
   for(int i=0;i<3;i++){
     std::string histName_In_nu_E = "hIn_nu_E_"+inter[i];
     hIn_nu_E[i] = new TH1D(histName_In_nu_E.c_str(),histName_In_nu_E.c_str(),100,0,4000);
+    std::string histName_omega = "homega_"+inter[i];
+    homega[i] = new TH1D(histName_omega.c_str(),histName_omega.c_str(),100,0,1000);
     std::string histName_Out_mu_pz = "hOut_mu_pz_"+inter[i];
     hOut_mu_pz[i] = new TH1D(histName_Out_mu_pz.c_str(),histName_Out_mu_pz.c_str(),100,0,4000);
     std::string histName_Out_p_cosTheta = "hOut_p_cosTheta"+inter[i];
     hOut_p_cosTheta[i] = new TH1D(histName_Out_p_cosTheta.c_str(),histName_Out_p_cosTheta.c_str(),100,-1,1);
+    hOut_p_cosTheta[i]->Sumw2();
   }
   
   
@@ -96,6 +100,8 @@ int main(int argc, char **argv) {
     //Get variables for plotting
     //Start with the energy of the incoming neutrino
     double in_nu_E = neutrino_in->momentum().e();
+    //Get omega (energy transfer)
+    double omega = neutrino_in->momentum().e() - lepton_out->momentum().e();
     //Then get the z-momentum of the outgoing muon
     double out_mu_pz = lepton_out->momentum().z();
     //Finally get the cosTheta of the outgoing proton
@@ -106,6 +112,7 @@ int main(int argc, char **argv) {
 
     //Fill "total" histograms with all events
     hIn_nu_E[0]->Fill(in_nu_E,weight);
+    homega[0]->Fill(omega,weight);
     hOut_mu_pz[0]->Fill(out_mu_pz,weight);
     hOut_p_cosTheta[0]->Fill(out_p_cosTheta,weight);
         
@@ -118,6 +125,7 @@ int main(int argc, char **argv) {
 
     //Fill either qe or intf histogram based on signal process id
     hIn_nu_E[proc]->Fill(in_nu_E,weight);
+    homega[proc]->Fill(omega,weight);
     hOut_mu_pz[proc]->Fill(out_mu_pz,weight);
     hOut_p_cosTheta[proc]->Fill(out_p_cosTheta,weight);
         
@@ -128,16 +136,24 @@ int main(int argc, char **argv) {
   //Scale factors applied to the histograms in order to create cross sections
   for(int j=0;j<3;j++){
     hIn_nu_E[j]->Scale(xsec/sum_weights);
+    homega[j]->Scale(xsec/sum_weights);
     hOut_mu_pz[j]->Scale(xsec/sum_weights);
     hOut_p_cosTheta[j]->Scale(xsec/sum_weights);
   }
   //Close the input file so it doesn't crash
   input_file.close();
 
+  double QEerror,Intferror;
+  double QEint = hOut_p_cosTheta[1]->IntegralAndError(1,100,QEerror);
+  double Intfint = hOut_p_cosTheta[2]->IntegralAndError(1,100,Intferror);
+  std::cout<<"Integral of QE = "<<QEint<<" +/- "<<QEerror<<std::endl;
+  std::cout<<"Integral of Intf =  "<<Intfint<<" +/- "<<Intferror<<std::endl;
+  
   //Create an output file to save the histograms
   TFile* outfile = new TFile(argv[2],"RECREATE");
   for(int n=0;n<3;n++){
     hIn_nu_E[n]->Write();
+    homega[n]->Write();
     hOut_mu_pz[n]->Write();
     hOut_p_cosTheta[n]->Write();
   }
