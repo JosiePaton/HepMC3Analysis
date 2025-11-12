@@ -93,8 +93,8 @@ int main(int argc, char **argv) {
       //Once we have the neutrino, we can now ignore all other particles other than final state particles, i.e. skip everything that doesn't have status "1"
       if(part->status() != 1) continue;
       //Now take the particles with the pdg ids of a muon (13) and a proton (2212) in the final state
-      if(std::abs(part->pid()) == 13) lepton_out = part;
-      else if(part->pid() == 2212) proton_out = part;
+      if(std::abs(part->pid()) == 14) lepton_out = part;
+      else if(part->pid() == 2212 || part->pid() == 2112) proton_out = part;
     }
     
     //Get variables for plotting
@@ -109,7 +109,6 @@ int main(int argc, char **argv) {
 
     //Get event weight = fluxWeight*generatorWeight (remembering to convert the neutrino energy to GeV)
     float weight =  numuFlux_Gev->GetBinContent(numuFlux_Gev->FindBin(in_nu_E/1000.))*evt.weights()[0] ;
-    //float weight =  evt.weights()[0] ;
 
     //Fill "total" histograms with all events
     hIn_nu_E[0]->Fill(in_nu_E,weight);
@@ -132,8 +131,7 @@ int main(int argc, char **argv) {
         
   }
   
-  std::cout << "Normalization factor (xsec/sum_weights) = " << xsec<<"/"<<sum_weights<<" = "<<xsec/sum_weights << std::endl;
-  std::cout<<"Integral of Total (pre norm) = "<<hOut_p_cosTheta[0]->Integral()<<std::endl;
+  std::cout << "Normalization factor (xsec/sum_weights) = " << xsec/sum_weights << std::endl;
 
   //Scale factors applied to the histograms in order to create cross sections
   for(int j=0;j<3;j++){
@@ -150,10 +148,6 @@ int main(int argc, char **argv) {
   double Intfint = hOut_p_cosTheta[2]->IntegralAndError(1,100,Intferror);
   std::cout<<"Integral of QE = "<<QEint<<" +/- "<<QEerror<<std::endl;
   std::cout<<"Integral of Intf =  "<<Intfint<<" +/- "<<Intferror<<std::endl;
-  std::cout<<"Integral of Total = "<<hOut_p_cosTheta[0]->Integral()<<std::endl;
-  
-  double fluxInt = numuFlux_Gev->Integral();
-  std::cout<<"flux * xsec = "<<fluxInt<<" * "<<xsec<<" = "<<fluxInt*xsec<<std::endl;
   
   //Create an output file to save the histograms
   TFile* outfile = new TFile(argv[2],"RECREATE");
